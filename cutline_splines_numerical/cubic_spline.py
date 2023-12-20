@@ -14,25 +14,19 @@ def cubic_spline(xi, yi):
         A tuple containing the x-coordinates, coefficients a, b, c, and d.
     """
     ### solve for ai, bi ci, di for i=0,...,n-1 ###
-    ai = yi[:] # 0 ... n
+    ai = np.copy(yi[:]) # 0 ... n
     hi = np.diff(xi) # 0 ... n-1
 
     diag1 = np.diag(np.insert(hi[1:],0,0), k=1)
-    diag0 = np.insert(2*(hi[0:-1]-hi[1:]),0,1)
+    diag0 = np.insert(2*(hi[0:-1]+hi[1:]),0,1)
     diag0 = np.insert(diag0,-1,1)
     diag0 = np.diag(diag0, k=0)
     diagNeg1 = np.diag(np.insert(hi[:-1], -1,0), k=-1)
-    #print("diag0: ", diag0.shape)
-    #print("diag1: ", diag1.shape)
-    #print("diag-1: ", diagNeg1.shape)
 
     A = diag0 + diag1 + diagNeg1
     b = 3/hi[1:]*(ai[2:] - ai[1:-1]) - 3/hi[0:-1]*(ai[1:-1] - ai[0:-2])
     b = np.insert(b,0,0)
-    b = np.insert(b,0,-1)
-
-    # print("A", A.shape)
-    # print("b", b.shape)
+    b = np.insert(b,-1,0)
 
     ci = np.matmul(np.linalg.inv(A),b) #np.linalg.solve(A,b)
     di = 1/3*1/hi * (np.diff(ci))
